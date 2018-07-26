@@ -20,7 +20,12 @@ public class Typing {
 
 	private JButton exitBtn = new JButton("退出");
 
-	private JTextArea textArea = new JTextArea(5, 10);
+	private JButton restartBtn = new JButton("重新开始");
+
+	private JTextArea textArea = new javax.swing.JTextArea(5, 10){
+		@Override public void copy(){}
+		@Override public void paste(){}
+	};
 
 	private JScrollPane scrollPane = new JScrollPane(textArea);
 
@@ -44,6 +49,7 @@ public class Typing {
 		finishBtnAction();
 		resultsBtnAction();
 		exitBtnAction();
+		restartBtnAction();
 
 		frame.setUndecorated(true);//去处边框
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH); //最大化
@@ -120,8 +126,14 @@ public class Typing {
 		textArea.setEnabled(false);
 
 		JSplitPane bottomSplitPane = new JSplitPane();
+		JSplitPane bottomRightSplitPane = new JSplitPane();
+
+		bottomRightSplitPane.setLeftComponent(restartBtn);
+		bottomRightSplitPane.setRightComponent(exitBtn);
+		bottomRightSplitPane.setDividerSize(2);
+
 		bottomSplitPane.setLeftComponent(resultsBtn);
-		bottomSplitPane.setRightComponent(exitBtn);
+		bottomSplitPane.setRightComponent(bottomRightSplitPane);
 		bottomSplitPane.setDividerSize(2);
 		bottomSplitPane.setDividerLocation(splitPane.getWidth() / 2);
 
@@ -168,12 +180,21 @@ public class Typing {
 		});
 	}
 
-	private void exitBtnAction () {
+	private void exitBtnAction() {
 		exitBtn.addActionListener(new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(null,"程序即将退出...");
 				System.exit(0);
+			}
+		});
+	}
+
+	private void restartBtnAction() {
+		restartBtn.addActionListener(new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new Typing();
 			}
 		});
 	}
