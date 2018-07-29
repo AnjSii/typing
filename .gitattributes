@@ -20,7 +20,6 @@
 *.cer	binary
 *.gif	binary
 *.ico	binary
-*.jar	binary
 *.jpg	binary
 *.jpeg	binary
 *.pem	binary
