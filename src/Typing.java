@@ -6,14 +6,19 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.HashMap;
 
 import javax.swing.*;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class Typing extends SwingModule{
+public class Typing extends SwingModule {
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(Typing::new);
@@ -23,7 +28,8 @@ public class Typing extends SwingModule{
 
 		fontSet();
 		splitPaneComponent();
-		textAreaAction();
+		textAreaKeyAction();
+		textAreaWordAction();
 		fontAction();
 		fontSizeAction();
 		fontStyleAction();
@@ -159,7 +165,58 @@ public class Typing extends SwingModule{
 		scrollAction();
 	}
 
-	private void textAreaAction() {
+	private void resutComponent(String fileText) {
+		EditDistanceCalculator editDistanceCalculator = new EditDistanceCalculator();
+		float similarity = editDistanceCalculator.correct(textArea.getText(), fileText.replaceAll("\\n*$", ""));
+
+		NumberFormat numberFormat = NumberFormat.getPercentInstance();
+		numberFormat.setMaximumFractionDigits(5);
+
+		String resut = numberFormat.format(similarity);
+
+		long time = endTime.getTime() - startTime.getTime();
+		long minutes = (time % (1000 * 60 * 60)) / (1000 * 60);
+
+		if (minutes == 0) {
+			minutes = 1;
+		}
+
+		resutTextArea.setFont(new Font("宋体", Font.PLAIN, 16));
+		resutTextArea.setFocusable(false);
+
+		numberOfWords = textArea.getText().length() / minutes;
+		resutTextArea.setText("正确率为：" + resut + "\n\n" + "打字平均速度:"
+				+ numberOfWords + "字/分" + "\n\n" + "退格：" + delCount + " 次");
+
+		resutScrollPane = new JScrollPane(resutTextArea);
+
+		bottomSplitPane.setLeftComponent(restartBtn);
+		bottomSplitPane.setRightComponent(exitBtn);
+		bottomSplitPane.setDividerSize(0);
+		bottomSplitPane.setDividerLocation(splitPane.getWidth() / 2);
+		bottomSplitPane.setBorder(null);
+
+		splitPane.setLeftComponent(resutScrollPane);
+		splitPane.setRightComponent(bottomSplitPane);
+
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();// 获取屏幕的边界
+		String osName = System.getProperty("os.name");
+		if (osName.contains("Mac")) {
+			showDiffSplitPane.setSize(screenSize.width, splitPane.getHeight());
+			showDiffSplitPane.setDividerLocation(screenSize.width / 2);
+			showResutSplitPane.setSize(screenSize.width, splitPane.getHeight());
+			showResutSplitPane.setDividerLocation(splitPane.getHeight() - 200);
+			splitPane.setDividerLocation(screenSize.height - 100);
+		} else if (osName.contains("Windows")) {
+			showDiffSplitPane.setSize(screenSize.width, splitPane.getHeight());
+			showDiffSplitPane.setDividerLocation(screenSize.width / 2);
+			showResutSplitPane.setSize(screenSize.width, splitPane.getHeight());
+			showResutSplitPane.setDividerLocation(splitPane.getHeight() - 200);
+			splitPane.setDividerLocation(screenSize.height - 100);
+		}
+	}
+
+	private void textAreaKeyAction() {
 		textArea.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) { //敲击键盘，发生在按键按下后，按键放开前
@@ -168,11 +225,6 @@ public class Typing extends SwingModule{
 
 			@Override
 			public void keyPressed(KeyEvent e) { // 按下按键
-				if (textArea.getText().equals("")) {
-					startTime = new Date();
-				}
-
-
 				if (e.getKeyCode() == 8) {
 					delCount++;
 				}
@@ -184,9 +236,31 @@ public class Typing extends SwingModule{
 		});
 	}
 
+	private void textAreaWordAction() {
+		textArea.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				if (textArea.getText().length() == 1) {
+					startTime = new Date();
+				}
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+
+			}
+		});
+	}
+
 	private void finishBtnAction() {
 		finishBtn.addActionListener(e -> {
 			if (!textArea.getText().equals("")) {
+				endTime = new Date();
 				loadFile();
 			} else {
 				JOptionPane.showMessageDialog(null, "请输入文字", "提示", JOptionPane.ERROR_MESSAGE);
@@ -246,7 +320,8 @@ public class Typing extends SwingModule{
 				JOptionPane.showMessageDialog(null, "选择文件失败，请重新选择", "操作失误", JOptionPane.ERROR_MESSAGE);
 			}
 			try {
-				splitPaneAlterComponent(readFile(fileText));
+				/*splitPaneAlterComponent(readFile(fileText));*/
+				resutComponent(readFile(fileText));
 			} catch (IOException e1) {
 				JOptionPane.showMessageDialog(null, "选择文件失败，请重新选择", "操作失误", JOptionPane.ERROR_MESSAGE);
 				e1.printStackTrace();
