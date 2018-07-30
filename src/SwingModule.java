@@ -71,7 +71,7 @@ class SwingModule {
 
 	int delCount;
 
-	long numberOfWords;
+	float numberOfWords;
 
 	Date startTime = new Date();
 

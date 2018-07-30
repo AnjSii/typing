@@ -175,7 +175,7 @@ public class Typing extends SwingModule {
 		String resut = numberFormat.format(similarity);
 
 		long time = endTime.getTime() - startTime.getTime();
-		long minutes = (time % (1000 * 60 * 60)) / (1000 * 60);
+		float minutes = time / (1000f * 60f);
 
 		if (minutes == 0) {
 			minutes = 1;
@@ -186,7 +186,7 @@ public class Typing extends SwingModule {
 
 		numberOfWords = textArea.getText().length() / minutes;
 		resutTextArea.setText("正确率为：" + resut + "\n\n" + "打字平均速度:"
-				+ numberOfWords + "字/分" + "\n\n" + "退格：" + delCount + " 次");
+				+ Math.round(numberOfWords) + "字/分" + "\n\n" + "退格：" + delCount + " 次");
 
 		resutScrollPane = new JScrollPane(resutTextArea);
 
