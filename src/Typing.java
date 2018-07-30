@@ -94,8 +94,8 @@ public class Typing extends SwingModule{
 		long minutes = (time % (1000 * 60 * 60)) / (1000 * 60);
 		long seconds = (time % (1000 * 60)) / 1000;
 
-		resutTextArea.setFont(new Font(current_fontName, current_fontStyle, 14));
-		resutTextArea.setEnabled(false);
+		resutTextArea.setFont(new Font("宋体", Font.PLAIN, 16));
+		resutTextArea.setFocusable(false);
 		if (minutes > 0) {
 			numberOfWords = textArea.getText().length() / minutes;
 			resutTextArea.setText("绿色为多打的字符，红色为少打的字符\n\n" + "正确率为：" + resut + "\n\n" + "打字平均速度:"
@@ -171,6 +171,7 @@ public class Typing extends SwingModule{
 				if (textArea.getText().equals("")) {
 					startTime = new Date();
 				}
+
 
 				if (e.getKeyCode() == 8) {
 					delCount++;
